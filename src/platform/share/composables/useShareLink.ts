@@ -3,20 +3,13 @@
  */
 import { ref } from 'vue'
 import { createShare } from '@/platform/share/api/shareApi'
-import type { CreateShareResponse, ShareExpiresIn } from '@/platform/share/types/share'
+import type {
+  CreateShareResponse,
+  ShareExpiresIn
+} from '@/platform/share/types/share'
 import { useToastStore } from '@/platform/updates/common/toastStore'
 import { app } from '@/scripts/app'
 import { useI18n } from 'vue-i18n'
-
-const SHORTCODE_LENGTH = 8
-const SHORTCODE_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-
-export function generateShortcode(): string {
-  return Array.from(
-    { length: SHORTCODE_LENGTH },
-    () => SHORTCODE_CHARS[Math.floor(Math.random() * SHORTCODE_CHARS.length)]
-  ).join('')
-}
 
 export function useShareLink() {
   const { t } = useI18n()
@@ -49,7 +42,12 @@ export function useShareLink() {
     const graph = app?.canvas?.graph ?? app?.rootGraph
     const workflow = graph?.serialize?.()
     if (!workflow) {
-      toast.add({ severity: 'error', summary: t('g.error'), detail: 'No workflow to share', life: 3000 })
+      toast.add({
+        severity: 'error',
+        summary: t('g.error'),
+        detail: 'No workflow to share',
+        life: 3000
+      })
       return null
     }
     creating.value = true
@@ -68,7 +66,12 @@ export function useShareLink() {
         previewBlob
       })
       shareUrl.value = res.url
-      toast.add({ severity: 'success', summary: t('share.copied'), detail: t('share.title'), life: 2000 })
+      toast.add({
+        severity: 'success',
+        summary: t('share.copied'),
+        detail: t('share.title'),
+        life: 2000
+      })
       return res
     } catch (e) {
       toast.add({
@@ -83,5 +86,5 @@ export function useShareLink() {
     }
   }
 
-  return { creating, shareUrl, createShareLink, generateShortcode }
+  return { creating, shareUrl, createShareLink }
 }

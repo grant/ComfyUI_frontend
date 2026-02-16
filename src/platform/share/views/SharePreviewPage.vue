@@ -5,21 +5,37 @@
     >
       <span class="text-lg font-medium text-foreground">ComfyUI</span>
       <a :href="appUrl" class="text-sm text-primary hover:underline">
-        {{ isAuthenticated === false ? $t('share.preview.signInToImport') : $t('share.preview.openInComfy') }}
+        {{
+          isAuthenticated === false
+            ? $t('share.preview.signInToImport')
+            : $t('share.preview.openInComfy')
+        }}
       </a>
     </header>
     <main class="flex flex-1 flex-col items-center gap-6 p-6">
       <template v-if="error">
-        <div class="w-full max-w-md space-y-2 rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center">
-          <h2 class="text-lg font-semibold text-destructive">{{ errorTitle }}</h2>
+        <div
+          class="w-full max-w-md space-y-2 rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center"
+        >
+          <h2 class="text-lg font-semibold text-destructive">
+            {{ errorTitle }}
+          </h2>
           <p class="text-sm text-muted-foreground">{{ error }}</p>
-          <a :href="appUrl" class="inline-block text-primary hover:underline">{{ $t('share.preview.openInComfy') }}</a>
+          <a :href="appUrl" class="inline-block text-primary hover:underline">{{
+            $t('share.preview.openInComfy')
+          }}</a>
         </div>
       </template>
       <template v-else-if="passwordRequired">
-        <div class="w-full max-w-md rounded-lg border border-interface-stroke bg-secondary-background p-6">
-          <h2 class="mb-2 text-lg font-semibold">{{ meta?.name ?? $t('share.title') }}</h2>
-          <p class="mb-4 text-sm text-muted-foreground">{{ $t('share.description') }}</p>
+        <div
+          class="w-full max-w-md rounded-lg border border-interface-stroke bg-secondary-background p-6"
+        >
+          <h2 class="mb-2 text-lg font-semibold">
+            {{ meta?.name ?? $t('share.title') }}
+          </h2>
+          <p class="mb-4 text-sm text-muted-foreground">
+            {{ $t('share.description') }}
+          </p>
           <input
             v-model="passwordInput"
             type="password"
@@ -48,11 +64,25 @@
             />
           </div>
           <h1 class="text-xl font-semibold text-foreground">{{ meta.name }}</h1>
-          <p v-if="meta.description" class="text-muted-foreground">{{ meta.description }}</p>
+          <p v-if="meta.description" class="text-muted-foreground">
+            {{ meta.description }}
+          </p>
           <div class="flex gap-4 text-sm text-muted-foreground">
-            <span>{{ $t('share.preview.nodes', { count: meta.node_count ?? 0 }) }}</span>
-            <span>{{ $t('share.preview.models', { count: (meta.required_models ?? []).length }) }}</span>
-            <span v-if="typeof meta.view_count === 'number'">{{ $t('share.preview.viewCount', { count: meta.view_count }, meta.view_count) }}</span>
+            <span>{{
+              $t('share.preview.nodes', { count: meta.node_count ?? 0 })
+            }}</span>
+            <span>{{
+              $t('share.preview.models', {
+                count: (meta.required_models ?? []).length
+              })
+            }}</span>
+            <span v-if="typeof meta.view_count === 'number'">{{
+              $t(
+                'share.preview.viewCount',
+                { count: meta.view_count },
+                meta.view_count
+              )
+            }}</span>
           </div>
           <ShareDependencyList
             :required-nodes="meta.required_nodes ?? []"
@@ -85,7 +115,11 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const route = useRoute()
-const shortcode = computed(() => String((route.params.shortcode as string) ?? '').replace(/\/$/, '').trim())
+const shortcode = computed(() =>
+  String((route.params.shortcode as string) ?? '')
+    .replace(/\/$/, '')
+    .trim()
+)
 const meta = ref<SharePreviewMeta | null>(null)
 const error = ref<string | null>(null)
 const isInvalidShortcodeError = ref(false)
@@ -98,10 +132,14 @@ const passwordInput = ref('')
 const SHORTCODE_LENGTH = 8
 
 const authStore = isCloud ? useFirebaseAuthStore() : null
-const isAuthenticated = computed(() => (authStore ? !!authStore.user : true))
+const isAuthenticated = computed(() =>
+  authStore ? authStore.isAuthenticated : true
+)
 
 const appUrl = computed(() => {
-  const base = window.location.origin + (window.location.pathname.replace(/\/share\/.*$/, '') || '/')
+  const base =
+    window.location.origin +
+    (window.location.pathname.replace(/\/share\/.*$/, '') || '/')
   return base.endsWith('/') ? base : base + '/'
 })
 
@@ -128,7 +166,10 @@ async function load(opt?: { password?: string }) {
   }
   isInvalidShortcodeError.value = false
   try {
-    const data = await getShare(code, { includeWorkflow: false, password: opt?.password })
+    const data = await getShare(code, {
+      includeWorkflow: false,
+      password: opt?.password
+    })
     if (data.password_required) {
       passwordRequired.value = true
       meta.value = data as SharePreviewMeta

@@ -87,7 +87,9 @@ export async function getShare(
   if (!res.ok) {
     if (res.status === 404) throw new Error('Share not found or expired')
     const err = await res.json().catch(() => ({}))
-    throw new Error(err?.message ?? err?.error ?? `Failed to load share: ${res.status}`)
+    throw new Error(
+      err?.message ?? err?.error ?? `Failed to load share: ${res.status}`
+    )
   }
   const data = await res.json()
   if (data.workflow_json) data.workflow = data.workflow_json
@@ -103,29 +105,13 @@ export async function listMyShares(): Promise<ListSharesResponse> {
   return res.json()
 }
 
-export async function updateShare(
-  shortcode: string,
-  updates: { expiresIn?: ShareExpiresIn; password?: string; isPublic?: boolean }
-): Promise<void> {
-  const body: Record<string, unknown> = {}
-  if (updates.expiresIn !== undefined) body.expires_in = updates.expiresIn
-  if (updates.password !== undefined) body.password = updates.password
-  if (updates.isPublic !== undefined) body.is_public = updates.isPublic
-  const res = await api.fetchApi(`${SHARE_BASE}/${encodeURIComponent(shortcode)}`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err?.error ?? `Failed to update share: ${res.status}`)
-  }
-}
-
 export async function deleteShare(shortcode: string): Promise<void> {
-  const res = await api.fetchApi(`${SHARE_BASE}/${encodeURIComponent(shortcode)}`, {
-    method: 'DELETE'
-  })
+  const res = await api.fetchApi(
+    `${SHARE_BASE}/${encodeURIComponent(shortcode)}`,
+    {
+      method: 'DELETE'
+    }
+  )
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     throw new Error(err?.error ?? `Failed to delete share: ${res.status}`)
@@ -135,7 +121,9 @@ export async function deleteShare(shortcode: string): Promise<void> {
 /** Record that a share was imported (increments import_count). Fire-and-forget; does not throw. */
 export async function recordShareImport(shortcode: string): Promise<void> {
   try {
-    const url = api.apiURL(`${SHARE_BASE}/${encodeURIComponent(shortcode)}/import`)
+    const url = api.apiURL(
+      `${SHARE_BASE}/${encodeURIComponent(shortcode)}/import`
+    )
     await fetch(url, { method: 'POST', cache: 'no-cache' })
   } catch {
     // Best-effort analytics; ignore errors

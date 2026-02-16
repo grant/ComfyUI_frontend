@@ -7,16 +7,6 @@ export const SHARE_SHORTCODE_LENGTH = 8
 
 export type ShareExpiresIn = 'never' | '7d' | '30d'
 
-export interface CreateShareOptions {
-  workflow: object
-  name: string
-  description?: string
-  expiresIn?: ShareExpiresIn
-  password?: string
-  isPublic?: boolean
-  previewBlob?: Blob | null
-}
-
 export interface CreateShareResponse {
   shortcode: string
   url: string

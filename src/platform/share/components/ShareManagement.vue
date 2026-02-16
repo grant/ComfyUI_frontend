@@ -7,7 +7,9 @@
     class="w-full max-w-2xl"
     @update:visible="(v: boolean) => $emit('update:visible', v)"
   >
-    <div v-if="loading" class="py-8 text-center text-muted-foreground">{{ $t('g.loading') }}...</div>
+    <div v-if="loading" class="py-8 text-center text-muted-foreground">
+      {{ $t('g.loading') }}...
+    </div>
     <div v-else-if="error" class="py-4 text-destructive">{{ error }}</div>
     <ul v-else-if="shares.length" class="list-none space-y-2 pl-0">
       <li
@@ -23,10 +25,15 @@
             rel="noopener noreferrer"
             class="ml-2 text-sm text-primary hover:underline"
           >
-            /share/{{ s.shortcode }}
+            {{ $t('share.pathPrefix') }}{{ s.shortcode }}
           </a>
           <div class="mt-1 text-xs text-muted-foreground">
-            {{ s.views }} views · {{ s.imports }} imports
+            {{
+              $t('share.viewsAndImports', {
+                views: s.views,
+                imports: s.imports
+              })
+            }}
           </div>
         </div>
         <button
@@ -39,7 +46,9 @@
         </button>
       </li>
     </ul>
-    <p v-else class="py-4 text-muted-foreground">{{ $t('g.noResultsFound') }}</p>
+    <p v-else class="py-4 text-muted-foreground">
+      {{ $t('g.noResultsFound') }}
+    </p>
     <template #footer>
       <button
         type="button"

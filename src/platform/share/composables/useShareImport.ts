@@ -10,7 +10,9 @@ import { useI18n } from 'vue-i18n'
 
 function isValidShortcode(code: string): boolean {
   const trimmed = code.trim()
-  return trimmed.length === SHARE_SHORTCODE_LENGTH && /^[a-zA-Z0-9]+$/.test(trimmed)
+  return (
+    trimmed.length === SHARE_SHORTCODE_LENGTH && /^[a-zA-Z0-9]+$/.test(trimmed)
+  )
 }
 
 export function useShareImport() {
@@ -18,7 +20,10 @@ export function useShareImport() {
   const toast = useToastStore()
   const importing = ref(false)
 
-  async function importShare(shortcode: string, password?: string): Promise<boolean> {
+  async function importShare(
+    shortcode: string,
+    password?: string
+  ): Promise<boolean> {
     if (!app?.loadGraphData) return false
     const code = shortcode.trim()
     if (!isValidShortcode(code)) {
@@ -43,7 +48,11 @@ export function useShareImport() {
           workflow = null
         }
       }
-      if (!workflow || typeof workflow !== 'object' || Array.isArray(workflow)) {
+      if (
+        !workflow ||
+        typeof workflow !== 'object' ||
+        Array.isArray(workflow)
+      ) {
         toast.add({
           severity: 'error',
           summary: t('g.error'),
@@ -56,7 +65,9 @@ export function useShareImport() {
       const graphData = workflow as Record<string, unknown>
       const nodes = Array.isArray(graphData.nodes)
         ? graphData.nodes
-        : Array.isArray((graphData as { graph?: { nodes?: unknown[] } }).graph?.nodes)
+        : Array.isArray(
+              (graphData as { graph?: { nodes?: unknown[] } }).graph?.nodes
+            )
           ? (graphData as { graph: { nodes: unknown[] } }).graph.nodes
           : []
       const payload = { ...graphData, nodes }
@@ -69,7 +80,7 @@ export function useShareImport() {
         summary: t('share.import.success'),
         life: 3000
       })
-      recordShareImport(code)
+      void recordShareImport(code)
       return true
     } catch (e) {
       toast.add({

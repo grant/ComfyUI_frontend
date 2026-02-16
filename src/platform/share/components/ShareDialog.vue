@@ -7,7 +7,9 @@
     class="w-full max-w-md"
     @update:visible="(v: boolean) => $emit('update:visible', v)"
   >
-    <p class="mb-4 text-sm text-muted-foreground">{{ $t('share.description') }}</p>
+    <p class="mb-4 text-sm text-muted-foreground">
+      {{ $t('share.description') }}
+    </p>
     <div v-if="result" class="space-y-4">
       <ShareLinkInput :url="result.url" />
       <div class="flex justify-center">
@@ -16,14 +18,16 @@
     </div>
     <form v-else class="space-y-4" @submit.prevent="submit">
       <div>
-        <label class="mb-1 block text-sm font-medium">{{ $t('share.expires') }}</label>
+        <label class="mb-1 block text-sm font-medium">{{
+          $t('share.expires')
+        }}</label>
         <select
           v-model="expiresIn"
           class="w-full rounded border border-interface-stroke bg-background-default px-3 py-2 text-foreground"
         >
           <option value="never">{{ $t('share.never') }}</option>
-          <option value="7d">7 days</option>
-          <option value="30d">30 days</option>
+          <option value="7d">{{ $t('share.expires7d') }}</option>
+          <option value="30d">{{ $t('share.expires30d') }}</option>
         </select>
       </div>
       <label class="flex cursor-pointer items-center gap-2">
@@ -71,7 +75,10 @@ import type { CreateShareResponse } from '@/platform/share/types/share'
 import { useWorkflowStore } from '@/platform/workflow/management/stores/workflowStore'
 
 const props = defineProps<{ visible: boolean }>()
-const emit = defineEmits<{ (e: 'update:visible', v: boolean): void; (e: 'openManagement'): void }>()
+const emit = defineEmits<{
+  (e: 'update:visible', v: boolean): void
+  (e: 'openManagement'): void
+}>()
 
 const workflowStore = useWorkflowStore()
 const { creating, createShareLink } = useShareLink()
@@ -87,7 +94,9 @@ watch(
     if (v) {
       result.value = null
       const w = workflowStore.activeWorkflow
-      workflowName.value = (w && 'key' in w ? w.key : 'Untitled')?.replace(/\.json$/, '') || 'Untitled'
+      workflowName.value =
+        (w && 'key' in w ? w.key : 'Untitled')?.replace(/\.json$/, '') ||
+        'Untitled'
     }
   }
 )
