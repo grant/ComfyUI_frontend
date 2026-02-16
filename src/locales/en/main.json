@@ -316,8 +316,7 @@
       "requiredNodes": "Required Nodes",
       "noModels": "No specific models required.",
       "sharedBy": "Shared by {author}",
-      "viewCount": "{count} view",
-      "viewCount_other": "{count} views"
+      "viewCount": "{count} view | {count} views"
     },
     "import": {
       "success": "Workflow imported successfully",
@@ -326,7 +325,8 @@
     "invalidLink": "Invalid share link",
     "invalidLinkDetail": "This share link is invalid. Share links have an 8-character code.",
     "notFound": "Share not found",
-    "notFoundDetail": "Share not found or expired"
+    "notFoundDetail": "Share not found or expired",
+    "badPassword": "Incorrect password. Please try again."
   },
   "manager": {
     "title": "Nodes Manager",

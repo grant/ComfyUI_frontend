@@ -1,61 +1,61 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-background-default">
-    <header
-      class="flex h-14 shrink-0 items-center justify-between border-b border-interface-stroke bg-comfy-menu-bg px-4"
+  <div
+    class="dark-theme flex min-h-screen flex-col font-inter bg-base-background text-text-primary"
+  >
+    <main
+      class="flex flex-1 flex-col items-center justify-start overflow-auto px-4 py-8 sm:px-6"
     >
-      <span class="text-lg font-medium text-foreground">ComfyUI</span>
-      <a :href="appUrl" class="text-sm text-primary hover:underline">
-        {{
-          isAuthenticated === false
-            ? $t('share.preview.signInToImport')
-            : $t('share.preview.openInComfy')
-        }}
-      </a>
-    </header>
-    <main class="flex flex-1 flex-col items-center gap-6 p-6">
       <template v-if="error">
-        <div
-          class="w-full max-w-md space-y-2 rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center"
+        <section
+          class="w-full max-w-md rounded-2xl border border-destructive/40 bg-destructive/10 p-6 text-center shadow-interface"
         >
-          <h2 class="text-lg font-semibold text-destructive">
+          <h2 class="mb-2 text-lg font-semibold text-destructive">
             {{ errorTitle }}
           </h2>
-          <p class="text-sm text-muted-foreground">{{ error }}</p>
-          <a :href="appUrl" class="inline-block text-primary hover:underline">{{
-            $t('share.preview.openInComfy')
-          }}</a>
-        </div>
+          <p class="mb-4 text-sm text-text-secondary">{{ error }}</p>
+          <Button variant="secondary" size="lg" as="a" :href="appUrl">
+            {{ $t('share.preview.openInComfy') }}
+          </Button>
+        </section>
       </template>
       <template v-else-if="passwordRequired">
-        <div
-          class="w-full max-w-md rounded-lg border border-interface-stroke bg-secondary-background p-6"
+        <section
+          class="w-full max-w-md rounded-2xl border border-interface-stroke bg-interface-panel-surface p-6 shadow-interface"
         >
-          <h2 class="mb-2 text-lg font-semibold">
+          <h2 class="mb-1 text-lg font-semibold text-text-primary">
             {{ meta?.name ?? $t('share.title') }}
           </h2>
-          <p class="mb-4 text-sm text-muted-foreground">
+          <p class="mb-4 text-sm text-text-secondary">
             {{ $t('share.description') }}
           </p>
           <input
             v-model="passwordInput"
             type="password"
             :placeholder="$t('share.requirePassword')"
-            class="mb-4 w-full rounded border border-interface-stroke bg-background-default px-3 py-2 text-foreground"
+            class="mb-2 w-full rounded-lg border border-interface-stroke bg-comfy-input px-3 py-2.5 text-sm text-comfy-input-foreground outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-primary-background/40"
             @keydown.enter="submitPassword"
+            @input="passwordError = null"
           />
-          <button
-            class="w-full rounded bg-primary px-4 py-2 text-primary-foreground hover:opacity-90"
+          <p v-if="passwordError" class="mb-4 text-sm text-destructive">
+            {{ passwordError }}
+          </p>
+          <Button
+            variant="primary"
+            size="lg"
+            class="w-full"
             @click="submitPassword"
           >
             {{ $t('g.continue') }}
-          </button>
-        </div>
+          </Button>
+        </section>
       </template>
       <template v-else-if="meta">
-        <div class="w-full max-w-2xl space-y-4">
+        <section
+          class="w-full max-w-2xl space-y-6 rounded-2xl border border-interface-stroke bg-interface-panel-surface p-6 shadow-interface sm:p-8"
+        >
           <div
             v-if="meta.preview_image_url"
-            class="overflow-hidden rounded-lg border border-interface-stroke bg-secondary-background"
+            class="overflow-hidden rounded-xl border border-interface-stroke bg-interface-panel-surface"
           >
             <img
               :src="meta.preview_image_url"
@@ -63,11 +63,17 @@
               class="h-auto w-full object-contain"
             />
           </div>
-          <h1 class="text-xl font-semibold text-foreground">{{ meta.name }}</h1>
-          <p v-if="meta.description" class="text-muted-foreground">
-            {{ meta.description }}
-          </p>
-          <div class="flex gap-4 text-sm text-muted-foreground">
+          <div class="space-y-1">
+            <h1 class="text-xl font-semibold text-text-primary">
+              {{ meta.name }}
+            </h1>
+            <p v-if="meta.description" class="text-sm text-text-secondary">
+              {{ meta.description }}
+            </p>
+          </div>
+          <div
+            class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary"
+          >
             <span>{{
               $t('share.preview.nodes', { count: meta.node_count ?? 0 })
             }}</span>
@@ -77,27 +83,33 @@
               })
             }}</span>
             <span v-if="typeof meta.view_count === 'number'">{{
-              $t(
-                'share.preview.viewCount',
-                { count: meta.view_count },
-                meta.view_count
-              )
+              $t('share.preview.viewCount', meta.view_count)
             }}</span>
           </div>
-          <ShareDependencyList
-            :required-nodes="meta.required_nodes ?? []"
-            :required-models="meta.required_models ?? []"
-          />
-          <a
-            :href="importUrl"
-            class="inline-block rounded bg-primary px-4 py-2 text-primary-foreground no-underline hover:opacity-90"
+          <div
+            class="rounded-lg border border-interface-stroke bg-interface-panel-hover-surface/50 px-4 py-3"
+          >
+            <ShareDependencyList
+              :required-nodes="meta.required_nodes ?? []"
+              :required-models="meta.required_models ?? []"
+            />
+          </div>
+          <Button
+            variant="primary"
+            size="lg"
+            class="w-full sm:w-auto"
+            @click="openInComfy"
           >
             {{ $t('share.preview.openInComfy') }}
-          </a>
-        </div>
+          </Button>
+        </section>
       </template>
       <template v-else>
-        <p class="text-muted-foreground">{{ $t('g.loading') }}...</p>
+        <div
+          class="flex w-full max-w-2xl items-center justify-center rounded-2xl border border-interface-stroke bg-interface-panel-surface py-12 shadow-interface"
+        >
+          <p class="text-sm text-text-secondary">{{ $t('g.loading') }}...</p>
+        </div>
       </template>
     </main>
   </div>
@@ -109,8 +121,7 @@ import { useRoute } from 'vue-router'
 import { getShare } from '@/platform/share/api/shareApi'
 import type { SharePreviewMeta } from '@/platform/share/types/share'
 import ShareDependencyList from '@/platform/share/components/ShareDependencyList.vue'
-import { isCloud } from '@/platform/distribution/types'
-import { useFirebaseAuthStore } from '@/stores/firebaseAuthStore'
+import Button from '@/components/ui/button/Button.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -128,13 +139,9 @@ const errorTitle = computed(() =>
 )
 const passwordRequired = ref(false)
 const passwordInput = ref('')
+const passwordError = ref<string | null>(null)
 
 const SHORTCODE_LENGTH = 8
-
-const authStore = isCloud ? useFirebaseAuthStore() : null
-const isAuthenticated = computed(() =>
-  authStore ? authStore.isAuthenticated : true
-)
 
 const appUrl = computed(() => {
   const base =
@@ -159,6 +166,7 @@ async function load(opt?: { password?: string }) {
   error.value = null
   meta.value = null
   passwordRequired.value = false
+  passwordError.value = null
   if (!isValidShortcode(code)) {
     isInvalidShortcodeError.value = true
     error.value = t('share.invalidLinkDetail')
@@ -173,9 +181,14 @@ async function load(opt?: { password?: string }) {
     if (data.password_required) {
       passwordRequired.value = true
       meta.value = data as SharePreviewMeta
+      if (opt?.password) passwordError.value = t('share.badPassword')
       return
     }
     meta.value = data as SharePreviewMeta
+    if (opt?.password) {
+      window.location.href = importUrl.value
+      return
+    }
   } catch (e) {
     error.value = e instanceof Error ? e.message : t('share.notFoundDetail')
   }
@@ -183,6 +196,10 @@ async function load(opt?: { password?: string }) {
 
 function submitPassword() {
   if (passwordInput.value.trim()) load({ password: passwordInput.value.trim() })
+}
+
+function openInComfy() {
+  window.location.href = importUrl.value
 }
 
 onMounted(() => load())
