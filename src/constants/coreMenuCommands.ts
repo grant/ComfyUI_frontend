@@ -9,6 +9,7 @@ export const CORE_MENU_COMMANDS = [
     [
       'Comfy.SaveWorkflow',
       'Comfy.SaveWorkflowAs',
+      'Comfy.ShareWorkflow',
       'Comfy.ExportWorkflow',
       'Comfy.ExportWorkflowAPI'
     ]

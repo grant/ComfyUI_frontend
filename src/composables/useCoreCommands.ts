@@ -65,6 +65,7 @@ import {
 import { ManagerTab } from '@/workbench/extensions/manager/types/comfyManagerTypes'
 
 import { useWorkflowTemplateSelectorDialog } from './useWorkflowTemplateSelectorDialog'
+import { useShareStore } from '@/platform/share/stores/shareStore'
 
 import { useMaskEditorStore } from '@/stores/maskEditorStore'
 import { useDialogStore } from '@/stores/dialogStore'
@@ -189,6 +190,16 @@ export function useCoreCommands(): ComfyCommand[] {
         if (!workflow) return
 
         await workflowService.saveWorkflowAs(workflow)
+      }
+    },
+    {
+      id: 'Comfy.ShareWorkflow',
+      icon: 'pi pi-share-alt',
+      label: 'Share Workflow',
+      menubarLabel: 'Share',
+      category: 'essentials' as const,
+      function: () => {
+        useShareStore().openShareDialog()
       }
     },
     {

@@ -9,6 +9,7 @@ import {
   useWorkflowBookmarkStore,
   useWorkflowStore
 } from '@/platform/workflow/management/stores/workflowStore'
+import { useShareStore } from '@/platform/share/stores/shareStore'
 import { useCommandStore } from '@/stores/commandStore'
 import { useSubgraphStore } from '@/stores/subgraphStore'
 
@@ -104,6 +105,16 @@ export function useWorkflowActionsMenu(
       async () => {
         await ensureWorkflowActive(workflow)
         await commandStore.execute('Comfy.SaveWorkflowAs')
+      },
+      isRoot
+    )
+
+    addItem(
+      t('share.title'),
+      'pi pi-share-alt',
+      async () => {
+        await ensureWorkflowActive(workflow)
+        useShareStore().openShareDialog()
       },
       isRoot
     )

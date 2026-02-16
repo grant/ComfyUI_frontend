@@ -22,6 +22,11 @@
   <ManagerProgressToast />
   <UnloadWindowConfirmDialog v-if="!isDesktop" />
   <MenuHamburger />
+  <ShareDialog
+    v-model:visible="shareStore.shareDialogVisible"
+    @open-management="shareStore.openShareManagement()"
+  />
+  <ShareManagement v-model:visible="shareStore.shareManagementVisible" />
 </template>
 
 <script setup lang="ts">
@@ -55,6 +60,9 @@ import { SERVER_CONFIG_ITEMS } from '@/constants/serverConfig'
 import type { ServerConfig, ServerConfigValue } from '@/constants/serverConfig'
 import { i18n, loadLocale } from '@/i18n'
 import ModelImportProgressDialog from '@/platform/assets/components/ModelImportProgressDialog.vue'
+import ShareDialog from '@/platform/share/components/ShareDialog.vue'
+import ShareManagement from '@/platform/share/components/ShareManagement.vue'
+import { useShareStore } from '@/platform/share/stores/shareStore'
 import { isCloud, isDesktop } from '@/platform/distribution/types'
 import { useSettingStore } from '@/platform/settings/settingStore'
 import { useTelemetry } from '@/platform/telemetry'
@@ -97,6 +105,7 @@ const colorPaletteStore = useColorPaletteStore()
 const queueStore = useQueueStore()
 const assetsStore = useAssetsStore()
 const versionCompatibilityStore = useVersionCompatibilityStore()
+const shareStore = useShareStore()
 const graphCanvasContainerRef = ref<HTMLDivElement | null>(null)
 const { linearMode } = storeToRefs(useCanvasStore())
 

@@ -25,13 +25,17 @@ const isFileProtocol = window.location.protocol === 'file:'
  * Determine base path for the router.
  * - Electron: always root
  * - Cloud: use Vite's BASE_URL (configured at build time)
- * - Standard web (including reverse proxy subpaths): use window.location.pathname
- *   to support deployments like http://mysite.com/ComfyUI/
+ * - Standard web (including reverse proxy subpaths): use pathname so routes like /share/XXX
+ *   are matched under the app base (e.g. '' at root, or /ComfyUI when at mysite.com/ComfyUI/share/XXX).
  */
 function getBasePath(): string {
   if (isDesktop) return '/'
   if (isCloud) return import.meta.env?.BASE_URL || '/'
-  return window.location.pathname
+  const pathname = window.location.pathname
+  // So that /share/:shortcode matches: use path before /share, or '' when pathname is /share/...
+  const shareIndex = pathname.indexOf('/share')
+  if (shareIndex !== -1) return pathname.slice(0, shareIndex) || ''
+  return pathname
 }
 
 const basePath = getBasePath()
@@ -53,6 +57,12 @@ const router = createRouter({
       createWebHistory(basePath),
   routes: [
     ...(isCloud ? cloudOnboardingRoutes : []),
+    {
+      path: '/share/:shortcode',
+      name: 'SharePreview',
+      component: () => import('@/platform/share/views/SharePreviewPage.vue'),
+      meta: { requiresAuth: false }
+    },
     {
       path: '/',
       component: LayoutDefault,
@@ -123,7 +133,9 @@ if (isCloud) {
   function isPublicRoute(to: RouteLocationNormalized) {
     const name = String(to.name)
     if (PUBLIC_ROUTE_NAMES.has(name)) return true
+    if (name === 'SharePreview') return true
     const path = to.path
+    if (path.startsWith('/share/')) return true
     return PUBLIC_ROUTE_PATHS.has(path)
   }
   // Global authentication guard

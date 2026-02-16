@@ -546,7 +546,7 @@ We welcome contributions to ComfyUI Frontend! Please see our [Contributing Guide
 
 ## Development
 
-For detailed development setup, testing procedures, and technical information, please refer to [CONTRIBUTING.md](CONTRIBUTING.md).
+**Requirements:** [Node.js](https://nodejs.org/) (v24), [pnpm](https://pnpm.io/), and [Python](https://www.python.org/) (for running the ComfyUI backend locally). See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed development setup, testing procedures, and technical information.
 
 ### i18n
 

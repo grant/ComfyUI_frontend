@@ -112,9 +112,11 @@ import {
   watch,
   watchEffect
 } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import LiteGraphCanvasSplitterOverlay from '@/components/LiteGraphCanvasSplitterOverlay.vue'
+import { useShareImport } from '@/platform/share/composables/useShareImport'
 import TopMenuSection from '@/components/TopMenuSection.vue'
 import BottomPanel from '@/components/bottomPanel/BottomPanel.vue'
 import ExtensionSlot from '@/components/common/ExtensionSlot.vue'
@@ -515,12 +517,32 @@ onMounted(async () => {
     'Comfy.CustomColorPalettes'
   )
 
+  const route = useRoute()
+  const router = useRouter()
+  const query = route?.query ?? {}
+  const shareShortcode =
+    typeof query.share === 'string' && query.share
+      ? query.share.trim()
+      : null
+
   // Restore saved workflow and workflow tabs state
   await workflowPersistence.initializeWorkflow()
-  workflowPersistence.restoreWorkflowTabsState()
 
-  // Load template from URL if present
-  await workflowPersistence.loadTemplateFromUrlIfPresent()
+  // Load share from URL before restoring other tabs so the shared workflow is shown and not overwritten
+  let shareLoaded = false
+  if (shareShortcode && router) {
+    const { importShare } = useShareImport()
+    shareLoaded = await importShare(shareShortcode)
+    const q = { ...query }
+    delete q.share
+    await router.replace({ path: route?.path ?? '/', query: q })
+  }
+
+  if (!shareLoaded) {
+    workflowPersistence.restoreWorkflowTabsState()
+    // Load template from URL if present
+    await workflowPersistence.loadTemplateFromUrlIfPresent()
+  }
 
   // Accept workspace invite from URL if present (e.g., ?invite=TOKEN)
   // WorkspaceAuthGate ensures flag state is resolved before GraphCanvas mounts

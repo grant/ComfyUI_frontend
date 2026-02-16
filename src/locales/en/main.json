@@ -292,6 +292,38 @@
     "profile": "Profile",
     "noItems": "No items"
   },
+  "share": {
+    "title": "Share Workflow",
+    "description": "Anyone with the link can view and import this workflow.",
+    "copyLink": "Copy Link",
+    "copied": "Copied!",
+    "expires": "Expires",
+    "never": "Never",
+    "requirePassword": "Require password",
+    "passwordPlaceholder": "My Password",
+    "createLink": "Create link",
+    "manageLinks": "Manage Shared Links",
+    "preview": {
+      "openInComfy": "Open in ComfyUI",
+      "signInToImport": "Sign in to import",
+      "nodes": "{count} Nodes",
+      "models": "{count} Models",
+      "requiredModels": "Required Models",
+      "requiredNodes": "Required Nodes",
+      "noModels": "No specific models required.",
+      "sharedBy": "Shared by {author}",
+      "viewCount": "{count} view",
+      "viewCount_other": "{count} views"
+    },
+    "import": {
+      "success": "Workflow imported successfully",
+      "missingDeps": "Some dependencies are missing"
+    },
+    "invalidLink": "Invalid share link",
+    "invalidLinkDetail": "This share link is invalid. Share links have an 8-character code.",
+    "notFound": "Share not found",
+    "notFoundDetail": "Share not found or expired"
+  },
   "manager": {
     "title": "Nodes Manager",
     "nodePackInfo": "Node Pack Info",
