@@ -5,6 +5,9 @@
 /** Shortcode length required by the backend (8 alphanumeric chars). */
 export const SHARE_SHORTCODE_LENGTH = 8
 
+/** SessionStorage key prefix for passing password from preview page to app when opening password-protected share. Cleared after successful import. */
+export const SHARE_PASSWORD_STORAGE_KEY_PREFIX = 'Comfy.SharePassword.'
+
 export type ShareExpiresIn = 'never' | '7d' | '30d'
 
 export interface CreateShareResponse {

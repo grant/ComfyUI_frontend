@@ -46,20 +46,17 @@
         class="w-full rounded border border-interface-stroke bg-background-default px-3 py-2 text-foreground"
       />
       <div class="flex justify-between items-center">
-        <button
+        <Button
           type="button"
-          class="rounded px-3 py-2 text-sm text-primary hover:underline"
+          variant="muted-textonly"
+          size="md"
           @click="openManagement"
         >
           {{ $t('share.manageLinks') }}
-        </button>
-        <button
-          type="submit"
-          class="rounded bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-50"
-          :disabled="creating"
-        >
+        </Button>
+        <Button type="submit" variant="primary" size="md" :disabled="creating">
           {{ creating ? $t('g.loading') : $t('share.createLink') }}
-        </button>
+        </Button>
       </div>
     </form>
   </Dialog>
@@ -68,6 +65,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
+import Button from '@/components/ui/button/Button.vue'
 import ShareLinkInput from './ShareLinkInput.vue'
 import ShareQRCode from './ShareQRCode.vue'
 import { useShareLink } from '@/platform/share/composables/useShareLink'

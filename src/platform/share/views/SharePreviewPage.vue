@@ -1,9 +1,9 @@
 <template>
   <div
-    class="dark-theme flex min-h-screen flex-col font-inter bg-base-background text-text-primary"
+    class="dark-theme flex h-screen min-h-0 flex-col font-inter bg-base-background text-text-primary"
   >
     <main
-      class="flex flex-1 flex-col items-center justify-start overflow-auto px-4 py-8 sm:px-6"
+      class="flex min-h-0 flex-1 flex-col items-center justify-start overflow-auto px-4 py-6 sm:px-6 sm:py-8"
     >
       <template v-if="error">
         <section
@@ -51,16 +51,16 @@
       </template>
       <template v-else-if="meta">
         <section
-          class="w-full max-w-2xl space-y-6 rounded-2xl border border-interface-stroke bg-interface-panel-surface p-6 shadow-interface sm:p-8"
+          class="flex w-full max-w-2xl flex-col gap-4 rounded-2xl border border-interface-stroke bg-interface-panel-surface p-6 shadow-interface sm:gap-5 sm:p-8"
         >
           <div
             v-if="meta.preview_image_url"
-            class="overflow-hidden rounded-xl border border-interface-stroke bg-interface-panel-surface"
+            class="flex min-h-0 max-h-[45vh] shrink-0 overflow-hidden rounded-xl border border-interface-stroke bg-interface-panel-surface"
           >
             <img
               :src="meta.preview_image_url"
               :alt="meta.name"
-              class="h-auto w-full object-contain"
+              class="h-full w-full object-contain"
             />
           </div>
           <div class="space-y-1">
@@ -120,6 +120,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getShare } from '@/platform/share/api/shareApi'
 import type { SharePreviewMeta } from '@/platform/share/types/share'
+import { SHARE_PASSWORD_STORAGE_KEY_PREFIX } from '@/platform/share/types/share'
 import ShareDependencyList from '@/platform/share/components/ShareDependencyList.vue'
 import Button from '@/components/ui/button/Button.vue'
 import { useI18n } from 'vue-i18n'
@@ -185,10 +186,18 @@ async function load(opt?: { password?: string }) {
       return
     }
     meta.value = data as SharePreviewMeta
+    // Store password so "Open in ComfyUI" can load the workflow without re-prompting; app clears after import
     if (opt?.password) {
-      window.location.href = importUrl.value
-      return
+      try {
+        sessionStorage.setItem(
+          `${SHARE_PASSWORD_STORAGE_KEY_PREFIX}${code}`,
+          opt.password
+        )
+      } catch {
+        // Ignore quota/private mode
+      }
     }
+    // After correct password, show preview; user clicks "Open in ComfyUI" to enter app
   } catch (e) {
     error.value = e instanceof Error ? e.message : t('share.notFoundDetail')
   }

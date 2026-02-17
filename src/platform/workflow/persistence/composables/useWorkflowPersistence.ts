@@ -5,10 +5,12 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import {
+  clearPreservedQuery,
   hydratePreservedQuery,
   mergePreservedQueryIntoQuery
 } from '@/platform/navigation/preservedQueryManager'
 import { PRESERVED_QUERY_NAMESPACES } from '@/platform/navigation/preservedQueryNamespaces'
+import { useShareImport } from '@/platform/share/composables/useShareImport'
 import { useSettingStore } from '@/platform/settings/settingStore'
 import { useWorkflowService } from '@/platform/workflow/core/services/workflowService'
 import {
@@ -29,7 +31,9 @@ export function useWorkflowPersistence() {
   const route = useRoute()
   const router = useRouter()
   const templateUrlLoader = useTemplateUrlLoader()
+  const { importShare } = useShareImport()
   const TEMPLATE_NAMESPACE = PRESERVED_QUERY_NAMESPACES.TEMPLATE
+  const SHARE_NAMESPACE = PRESERVED_QUERY_NAMESPACES.SHARE
   const workflowDraftStore = useWorkflowDraftStore()
   const toast = useToast()
 
@@ -155,6 +159,42 @@ export function useWorkflowPersistence() {
     }
   }
 
+  const ensureShareQueryFromIntent = async () => {
+    hydratePreservedQuery(SHARE_NAMESPACE)
+    const mergedQuery = mergePreservedQueryIntoQuery(
+      SHARE_NAMESPACE,
+      route.query
+    )
+
+    if (mergedQuery) {
+      await router.replace({ query: mergedQuery })
+    }
+
+    return mergedQuery ?? route.query
+  }
+
+  /**
+   * Load shared workflow from URL if ?share=SHORTCODE is present.
+   * Mirrors loadTemplateFromUrlIfPresent: ensure intent (preserved query), load, then cleanup URL.
+   * Returns true if a share was loaded so caller can skip persisted workflow / template.
+   */
+  const loadShareFromUrlIfPresent = async (): Promise<boolean> => {
+    const query = await ensureShareQueryFromIntent()
+    const shortcode =
+      typeof query.share === 'string' && query.share ? query.share.trim() : null
+
+    if (!shortcode) return false
+
+    const loaded = await importShare(shortcode)
+    if (loaded) {
+      const newQuery = { ...route.query }
+      delete newQuery.share
+      await router.replace({ path: route.path ?? '/', query: newQuery })
+      clearPreservedQuery(SHARE_NAMESPACE)
+    }
+    return loaded
+  }
+
   const loadTemplateFromUrlIfPresent = async () => {
     const query = await ensureTemplateQueryFromIntent()
     const hasTemplateUrl = query.template && typeof query.template === 'string'
@@ -257,6 +297,7 @@ export function useWorkflowPersistence() {
 
   return {
     initializeWorkflow,
+    loadShareFromUrlIfPresent,
     loadTemplateFromUrlIfPresent,
     restoreWorkflowTabsState
   }

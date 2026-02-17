@@ -36,34 +36,28 @@
             }}
           </div>
         </div>
-        <button
+        <Button
           type="button"
-          class="rounded border border-interface-stroke px-2 py-1 text-sm hover:bg-secondary-background"
+          variant="secondary"
+          size="sm"
           :disabled="deleting === s.shortcode"
+          :loading="deleting === s.shortcode"
           @click="deleteOne(s.shortcode)"
         >
           {{ deleting === s.shortcode ? $t('g.loading') : $t('g.delete') }}
-        </button>
+        </Button>
       </li>
     </ul>
     <p v-else class="py-4 text-muted-foreground">
       {{ $t('g.noResultsFound') }}
     </p>
-    <template #footer>
-      <button
-        type="button"
-        class="rounded bg-primary px-3 py-2 text-sm text-primary-foreground"
-        @click="$emit('update:visible', false)"
-      >
-        {{ $t('g.close') }}
-      </button>
-    </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import Dialog from 'primevue/dialog'
+import Button from '@/components/ui/button/Button.vue'
 import { listMyShares, deleteShare } from '@/platform/share/api/shareApi'
 import type { ShareListItem } from '@/platform/share/types/share'
 import { useToastStore } from '@/platform/updates/common/toastStore'

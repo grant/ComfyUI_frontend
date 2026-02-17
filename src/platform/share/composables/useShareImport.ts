@@ -3,7 +3,10 @@
  */
 import { ref } from 'vue'
 import { getShare, recordShareImport } from '@/platform/share/api/shareApi'
-import { SHARE_SHORTCODE_LENGTH } from '@/platform/share/types/share'
+import {
+  SHARE_PASSWORD_STORAGE_KEY_PREFIX,
+  SHARE_SHORTCODE_LENGTH
+} from '@/platform/share/types/share'
 import { app } from '@/scripts/app'
 import { useToastStore } from '@/platform/updates/common/toastStore'
 import { useI18n } from 'vue-i18n'
@@ -37,7 +40,17 @@ export function useShareImport() {
     }
     importing.value = true
     try {
-      const data = await getShare(code, { includeWorkflow: true, password })
+      const storedPassword =
+        typeof sessionStorage !== 'undefined'
+          ? sessionStorage.getItem(
+              `${SHARE_PASSWORD_STORAGE_KEY_PREFIX}${code}`
+            )
+          : null
+      const passwordToUse = password ?? storedPassword ?? undefined
+      const data = await getShare(code, {
+        includeWorkflow: true,
+        password: passwordToUse
+      })
       let workflow: unknown =
         (data as { workflow?: unknown }).workflow ??
         (data as { workflow_json?: unknown }).workflow_json
@@ -75,12 +88,12 @@ export function useShareImport() {
         showMissingNodesDialog: true,
         showMissingModelsDialog: true
       })
-      toast.add({
-        severity: 'success',
-        summary: t('share.import.success'),
-        life: 3000
-      })
       void recordShareImport(code)
+      try {
+        sessionStorage.removeItem(`${SHARE_PASSWORD_STORAGE_KEY_PREFIX}${code}`)
+      } catch {
+        // Ignore
+      }
       return true
     } catch (e) {
       toast.add({
