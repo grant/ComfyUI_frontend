@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getShare } from '@/platform/share/api/shareApi'
 import type { SharePreviewMeta } from '@/platform/share/types/share'
@@ -143,6 +143,37 @@ const passwordInput = ref('')
 const passwordError = ref<string | null>(null)
 
 const SHORTCODE_LENGTH = 8
+const DEFAULT_TITLE = 'ComfyUI'
+
+function setShareMeta(shareMeta: SharePreviewMeta | null) {
+  const title = shareMeta?.name?.trim() || DEFAULT_TITLE
+  const description = (shareMeta?.description || 'Shared workflow')
+    .trim()
+    .slice(0, 200)
+  const image = shareMeta?.preview_image_url || ''
+  const url = typeof window !== 'undefined' ? window.location.href : ''
+
+  document.title = title
+  const setMeta = (attr: string, value: string, isProperty = false) => {
+    const key = isProperty ? 'property' : 'name'
+    let el = document.querySelector(`meta[${key}="${attr}"]`)
+    if (!el) {
+      el = document.createElement('meta')
+      el.setAttribute(key, attr)
+      document.head.appendChild(el)
+    }
+    el.setAttribute('content', value)
+  }
+  setMeta('og:title', title, true)
+  setMeta('og:description', description, true)
+  setMeta('og:image', image, true)
+  setMeta('og:url', url, true)
+  setMeta('og:type', 'website', true)
+  setMeta('twitter:card', 'summary_large_image')
+  setMeta('twitter:title', title)
+  setMeta('twitter:description', description)
+  setMeta('twitter:image', image)
+}
 
 const appUrl = computed(() => {
   const base =
@@ -213,4 +244,16 @@ function openInComfy() {
 
 onMounted(() => load())
 watch(shortcode, () => load(), { immediate: false })
+// Keep document title and OG/Twitter meta in sync when share data is available (e.g. after load or password unlock).
+// Helps JS-aware crawlers and in-app navigation; server-rendered HTML already has meta for non-JS crawlers.
+watch(
+  () => meta.value,
+  (m) => {
+    if (m) setShareMeta(m)
+  },
+  { immediate: true }
+)
+onUnmounted(() => {
+  document.title = DEFAULT_TITLE // Reset when leaving the share page
+})
 </script>
